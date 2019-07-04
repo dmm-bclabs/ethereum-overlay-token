@@ -1,1 +1,1 @@
-# ethereum-overlay-token-
+# ethereum-overlay-token
