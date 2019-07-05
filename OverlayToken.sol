@@ -18,6 +18,11 @@ contract OverlayToken is IERC20, ERC20Detailed, Ownable {
     uint256 private _parentSupply;
     mapping (uint32 => uint256) private _childSupplies;
     
+    event Mint(uint256 value);
+    event Burn(uint256 value);
+    event Send(uint32 indexed child, uint256 value);
+    event Receive(uint32 indexed child, uint256 value);
+    
     modifier onlyOwner() {
         require(isOwner(), "Ownable: caller is not the owner");
         _;
@@ -52,11 +57,13 @@ contract OverlayToken is IERC20, ERC20Detailed, Ownable {
     
     function mint(uint256 amount) public onlyOwner returns (bool) {
         _mint(msg.sender, amount);
+        emit Mint(amount);
          return true;
     }
 
     function burn(uint256 amount) public onlyOwner returns (bool) {
         _burn(msg.sender, amount);
+        emit Burn(amount);
         return true;
     }
     
@@ -65,6 +72,7 @@ contract OverlayToken is IERC20, ERC20Detailed, Ownable {
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
         _localSupply = _localSupply.sub(amount);
         _childSupplies[childId] = _childSupplies[childId].add(amount);
+        emit Send(childId, amount);
         return true;
     }
     
@@ -73,6 +81,7 @@ contract OverlayToken is IERC20, ERC20Detailed, Ownable {
         _childSupplies[childId] = _childSupplies[childId].sub(amount);
         _balances[msg.sender] = _balances[msg.sender].add(amount);
         _localSupply = _localSupply.add(amount);
+        emit Receive(childId, amount);
         return true;
     }
     
